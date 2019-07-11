@@ -4206,6 +4206,9 @@ static a2dp_start_capture_t a2dp_start_capture;
 typedef int (*a2dp_stop_capture_t)();
 static a2dp_stop_capture_t a2dp_stop_capture;
 
+typedef bool (*a2dp_set_source_backend_cfg_t)();
+static a2dp_set_source_backend_cfg_t a2dp_set_source_backend_cfg;
+
 typedef int (*sco_start_configuration_t)();
 static sco_start_configuration_t sco_start_configuration;
 
@@ -4260,7 +4263,10 @@ int a2dp_offload_feature_init(bool is_feature_enabled)
             !(a2dp_start_capture =
                  (a2dp_start_capture_t)dlsym(a2dp_lib_handle, "a2dp_start_capture")) ||
             !(a2dp_stop_capture =
-                 (a2dp_stop_capture_t)dlsym(a2dp_lib_handle, "a2dp_stop_capture"))) {
+                 (a2dp_stop_capture_t)dlsym(a2dp_lib_handle, "a2dp_stop_capture")) ||
+            !(a2dp_set_source_backend_cfg =
+                 (a2dp_set_source_backend_cfg_t)dlsym(
+                                     a2dp_lib_handle, "a2dp_set_source_backend_cfg"))) {
             ALOGE("%s: dlsym failed", __func__);
             goto feature_disabled;
         }
@@ -4298,6 +4304,7 @@ feature_disabled:
     a2dp_source_is_suspended = NULL;
     a2dp_start_capture = NULL;
     a2dp_stop_capture = NULL;
+    a2dp_set_source_backend_cfg = NULL;
 
     ALOGW(":: %s: ---- Feature A2DP_OFFLOAD is disabled ----", __func__);
     return -ENOSYS;
@@ -4394,6 +4401,12 @@ int audio_extn_a2dp_start_capture()
 int audio_extn_a2dp_stop_capture()
 {
     return (a2dp_stop_capture ? a2dp_stop_capture() : 0);
+}
+
+bool audio_extn_a2dp_set_source_backend_cfg()
+{
+    return (a2dp_set_source_backend_cfg ?
+                a2dp_set_source_backend_cfg() : false);
 }
 
 int audio_extn_sco_start_configuration()
