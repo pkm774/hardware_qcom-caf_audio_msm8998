@@ -2941,7 +2941,7 @@ int start_input_stream(struct stream_in *in)
     }
 
     if (audio_is_bluetooth_sco_device(in->device)) {
-        if (!adev->bt_sco_on) {
+        if (!adev->bt_sco_on || audio_extn_a2dp_source_is_ready()) {
             ALOGE("%s: SCO profile is not ready, return error", __func__);
             ret = -EIO;
             goto error_config;
